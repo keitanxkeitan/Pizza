@@ -13,6 +13,28 @@
 // Needed to obtain the Navigation Controller
 #import "AppDelegate.h"
 
+// フィールドのサイズ
+const int kFieldSize = 5;
+// 宝石のスプライトファイル名
+NSString * const kGemSpriteFilename[kGemTypeNum] = {
+  nil,
+  @"niku.png",
+  @"yasai.png",
+};
+// 宝石のスプライトの１辺の長さ
+const float kGemSideLength = 60.f;
+// フィールドの左の位置
+const float kFieldLeftPos = 10.f;
+// フィールドの上の位置
+const float kFieldTopPos = 310.f;
+
+@interface HelloWorldLayer()
+-(void)dumpField;
+-(void)calcNewField;
+-(void)resetGem;
+-(void)updateField;
+@end
+
 #pragma mark - HelloWorldLayer
 
 // HelloWorldLayer implementation
@@ -41,67 +63,42 @@
 	// Apple recommends to re-assign "self" with the "super's" return value
 	if( (self=[super init]) ) {
 		
-		// create and initialize a Label
-		CCLabelTTF *label = [CCLabelTTF labelWithString:@"Hello World" fontName:@"Marker Felt" fontSize:64];
-
-		// ask director for the window size
-		CGSize size = [[CCDirector sharedDirector] winSize];
-	
-		// position the label on the center of the screen
-		label.position =  ccp( size.width /2 , size.height/2 );
-		
-		// add the label as a child to this Layer
-		[self addChild: label];
-		
-		
-		
-		//
-		// Leaderboards and Achievements
-		//
-		
-		// Default font size will be 28 points.
-		[CCMenuItemFont setFontSize:28];
-		
-		// Achievement Menu Item using blocks
-		CCMenuItem *itemAchievement = [CCMenuItemFont itemWithString:@"Achievements" block:^(id sender) {
-			
-			
-			GKAchievementViewController *achivementViewController = [[GKAchievementViewController alloc] init];
-			achivementViewController.achievementDelegate = self;
-			
-			AppController *app = (AppController*) [[UIApplication sharedApplication] delegate];
-			
-			[[app navController] presentModalViewController:achivementViewController animated:YES];
-			
-			[achivementViewController release];
-		}
-									   ];
-
-		// Leaderboard Menu Item using blocks
-		CCMenuItem *itemLeaderboard = [CCMenuItemFont itemWithString:@"Leaderboard" block:^(id sender) {
-			
-			
-			GKLeaderboardViewController *leaderboardViewController = [[GKLeaderboardViewController alloc] init];
-			leaderboardViewController.leaderboardDelegate = self;
-			
-			AppController *app = (AppController*) [[UIApplication sharedApplication] delegate];
-			
-			[[app navController] presentModalViewController:leaderboardViewController animated:YES];
-			
-			[leaderboardViewController release];
-		}
-									   ];
-		
-		CCMenu *menu = [CCMenu menuWithItems:itemAchievement, itemLeaderboard, nil];
-		
-		[menu alignItemsHorizontallyWithPadding:20];
-		[menu setPosition:ccp( size.width/2, size.height/2 - 50)];
-		
-		// Add the menu to the layer
-		[self addChild:menu];
-
+		numPerType_ = 3;
+    
+    [self updateField];
+    
+    [NSTimer scheduledTimerWithTimeInterval:8.f
+                                     target:self
+                                   selector:@selector(updateField)
+                                   userInfo:nil
+                                    repeats:YES];
+    
+    self.isTouchEnabled = YES;
 	}
 	return self;
+}
+
+-(void) registerWithTouchDispatcher
+{
+	[[[CCDirector sharedDirector] touchDispatcher] addTargetedDelegate:self priority:0 swallowsTouches:YES];
+}
+
+- (BOOL)ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event {
+  return YES;
+}
+
+- (void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event {
+	CGPoint location = [self convertTouchToNodeSpace: touch];
+  
+  int row = (kFieldTopPos - location.y) / kGemSideLength;
+  int col = (location.x - kFieldLeftPos) / kGemSideLength;
+  
+  if (currField_[row][col] == kGemTypeEmpty) {
+    return;
+  }
+  
+  id actionTo = [CCScaleTo actionWithDuration:0.1f scale:1.25f];
+  [gems_[row][col] runAction:actionTo];
 }
 
 // on "dealloc" you need to release all your retained objects
@@ -113,6 +110,85 @@
 	
 	// don't forget to call "super dealloc"
 	[super dealloc];
+}
+
+// フィールド情報を出力する。
+-(void)dumpField
+{
+  for (int row = 0; row < kFieldSize; ++row) {
+    for (int col = 0; col < kFieldSize; ++col) {
+      NSLog(@"%d ", currField_[row][col]);
+    }
+    NSLog(@"¥n");
+  }
+}
+
+// 新しいフィールド情報を計算する。今のフィールド情報は１個前のフィールド情報に保持する。
+-(void)calcNewField
+{
+  for (int row = 0; row < kFieldSize; ++row) {
+    for (int col = 0; col < kFieldSize; ++col) {
+      prevField_[row][col] = currField_[row][col];
+    }
+  }
+  
+  enum GemType newField[kFieldSize * kFieldSize];
+  
+  memset(newField, 0, sizeof(newField));
+  
+  int i = 0;
+  for (int type = kGemTypeNiku; type < kGemTypeNum; ++type) {
+    for (int num = 0; num < numPerType_; ++num) {
+      newField[i++] = type;
+    }
+  }
+
+  for (int i = 0; i < (kFieldSize * kFieldSize); ++i) {
+    int j = rand() % ((kFieldSize * kFieldSize) - i);
+    int temp = newField[i];
+    newField[i] = newField[j];
+    newField[j] = temp;
+  }
+  
+  i = 0;
+  for (int row = 0; row < kFieldSize; ++row) {
+    for (int col = 0; col < kFieldSize; ++col) {
+      currField_[row][col] = newField[i++];
+    }
+  }
+}
+
+-(void)resetGem
+{
+  for (int row = 0; row < kFieldSize; ++row) {
+    for (int col = 0; col < kFieldSize; ++col) {
+      if (prevField_[row][col] != kGemTypeEmpty) {
+        [gems_[row][col] removeFromParentAndCleanup:YES];
+      }
+    }
+  }
+  
+  for (int row = 0; row < kFieldSize; ++row) {
+    for (int col = 0; col < kFieldSize; ++col) {
+      enum GemType type = currField_[row][col];
+
+      if (type == kGemTypeEmpty) {
+        continue;
+      }
+      
+      CCSprite *gem = [CCSprite spriteWithFile:kGemSpriteFilename[type]];
+      gem.position = ccp(kFieldLeftPos + (kGemSideLength / 2) + kGemSideLength * col,
+                         kFieldTopPos - (kGemSideLength / 2) - kGemSideLength * row);
+      [self addChild:gem];
+      gems_[row][col] = gem;
+    }
+  }
+}
+
+-(void)updateField
+{
+  [self calcNewField];
+  [self resetGem];
 }
 
 #pragma mark GameKit delegate

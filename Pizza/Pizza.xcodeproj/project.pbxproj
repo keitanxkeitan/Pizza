@@ -133,6 +133,8 @@
 		35E4430716E4D7320049521E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 35E4430616E4D7320049521E /* AppDelegate.m */; };
 		35E4430A16E4D7320049521E /* HelloWorldLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 35E4430916E4D7320049521E /* HelloWorldLayer.m */; };
 		35E4430D16E4D7320049521E /* IntroLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 35E4430C16E4D7320049521E /* IntroLayer.m */; };
+		35E4434916E4D94A0049521E /* yasai.png in Resources */ = {isa = PBXBuildFile; fileRef = 35E4434716E4D94A0049521E /* yasai.png */; };
+		35E4434A16E4D94A0049521E /* niku.png in Resources */ = {isa = PBXBuildFile; fileRef = 35E4434816E4D94A0049521E /* niku.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -398,6 +400,8 @@
 		35E4430916E4D7320049521E /* HelloWorldLayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HelloWorldLayer.m; sourceTree = "<group>"; };
 		35E4430B16E4D7320049521E /* IntroLayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IntroLayer.h; sourceTree = "<group>"; };
 		35E4430C16E4D7320049521E /* IntroLayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IntroLayer.m; sourceTree = "<group>"; };
+		35E4434716E4D94A0049521E /* yasai.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yasai.png; sourceTree = "<group>"; };
+		35E4434816E4D94A0049521E /* niku.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = niku.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -472,6 +476,8 @@
 		35E4418E16E4D72F0049521E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				35E4434716E4D94A0049521E /* yasai.png */,
+				35E4434816E4D94A0049521E /* niku.png */,
 				35E4418F16E4D72F0049521E /* Default.png */,
 				35E4419116E4D72F0049521E /* Default-Landscape~ipad.png */,
 				35E4419316E4D72F0049521E /* fps_images.png */,
@@ -896,6 +902,8 @@
 				35E441A416E4D72F0049521E /* Icon@2x.png in Resources */,
 				35E441A716E4D72F0049521E /* iTunesArtwork in Resources */,
 				35E442E516E4D7320049521E /* ChangeLog in Resources */,
+				35E4434916E4D94A0049521E /* yasai.png in Resources */,
+				35E4434A16E4D94A0049521E /* niku.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
